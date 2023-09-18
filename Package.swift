@@ -1,46 +1,55 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.5
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "Criollo",
-    platforms: [
-        .iOS(.v12),
-        .macOS(.v10_10),
-        .tvOS(.v12)
-    ],
+    platforms: [.iOS(.v9), .macOS(.v10_10), .tvOS(.v9)],
     products: [
-        .library(name: "Criollo",
-                 targets: ["Criollo"]),
+        .library(name: "Criollo", targets: ["Criollo"]),
+        .executable(name: "CriolloDemoSwift", targets: ["CriolloDemoSwift"]),
+        .executable(name: "CriolloDemoObjectiveC", targets: ["CriolloDemoObjectiveC"]),
     ],
     dependencies: [
-        .package(name:"CocoaAsyncSocket", url: "https://github.com/robbiehanson/CocoaAsyncSocket", from: "7.6.5"),
+        .package(name:"CocoaAsyncSocket", url: "https://github.com/robbiehanson/CocoaAsyncSocket", .upToNextMinor(from: "7.6.5")),
     ],
     targets: [
         .target(
             name: "Criollo",            
             dependencies: [
-                "CocoaAsyncSocket"
+                .product(name: "CocoaAsyncSocket", package: "CocoaAsyncSocket")
             ],
-            path: "Criollo",
             exclude: [
-                "../Libraries",
-                "../Apps",
-                "../Criollo.podspec"
+                "../../Criollo.podspec"
             ],
-            publicHeadersPath: "includes",
+            publicHeadersPath: "Headers",
             cSettings: [
-                .headerSearchPath("Source"),
-                .headerSearchPath("Source/Extensions"),
-                .headerSearchPath("Source/FCGI"),
-                .headerSearchPath("Source/HTTP"),
-                .headerSearchPath("Source/Routing"),
+                .headerSearchPath("."),
+                .headerSearchPath("./Extensions"),
+                .headerSearchPath("./FCGI"),
+                .headerSearchPath("./HTTP"),
+                .headerSearchPath("./Routing"),
             ]
         ),
-
-        .testTarget(name: "CriolloTests",
-                    dependencies: ["Criollo"],
-                    path: "CriolloTests"),
+        .testTarget(
+            name: "CriolloTests",
+            dependencies: ["Criollo"],
+            cSettings: [
+                .headerSearchPath("../../Sources/Criollo"),
+                .headerSearchPath("../../Sources/Criollo/Extensions"),
+                .headerSearchPath("../../Sources/Criollo/FCGI"),
+                .headerSearchPath("../../Sources/Criollo/HTTP"),
+                .headerSearchPath("../../Sources/Criollo/Routing"),
+            ]
+        ),
+        .executableTarget(
+            name: "CriolloDemoSwift",
+            dependencies: ["Criollo"]
+        ),
+        .executableTarget(
+            name: "CriolloDemoObjectiveC",
+            dependencies: ["Criollo"]
+        )
     ]
 )
